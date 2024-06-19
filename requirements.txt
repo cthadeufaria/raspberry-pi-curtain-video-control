@@ -1,0 +1,7 @@
+colorzero==2.0
+gpiozero==2.0.1
+lgpio==0.2.2.0
+numpy==1.26.4
+opencv-python==4.9.0.80
+python-statemachine==2.3.1
+rpi-lgpio==0.6
