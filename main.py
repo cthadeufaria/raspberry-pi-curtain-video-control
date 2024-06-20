@@ -1,33 +1,33 @@
-from time import sleep
-import threading
+import statemachine
+import asyncio
 
-from sensor import Sensor
 from video import Video
+from sensor import Sensor
+from curtain import Curtain
+
+# class Sensor():
+#     def __init__(self, trigger, echo):
+#         self.in_range = False
+#         self.idle_time = 0
 
 
 
-def main():
-    in_range = True
-    # sensor = Sensor(trigger=18, echo=24)
+async def main():
+    sensor = Sensor(trigger=18, echo=24)
     video = Video('flaminghott.mp4')
-
-    # sensor_thread = threading.Thread(target=sensor.listen)
-    video_thread = threading.Thread(target=video.play)
-    
-    # sensor_thread.start()
-    video_thread.start()
+    curtain = Curtain(video, sensor)
 
     while True:
-        sleep(0.5)
+        await asyncio.sleep(0.5)
+        try:
+            print(curtain.current_state)
+            await curtain.cycle()
+        except statemachine.exceptions.TransitionNotAllowed as e:
+            print(e)
 
         # print("Distance: {} cm".format(sensor.distance))
-        print("Looping...")
-
-        if in_range: # if sensor.in_range:
-            video.set_playing(True)
-        else:
-            video.set_playing(False)
+        
 
 
 if __name__ == "__main__": 
-    main()
+    asyncio.run(main())
