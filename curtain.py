@@ -1,5 +1,5 @@
 from statemachine import StateMachine, State
-import asyncio
+import threading
 
 from sensor import Sensor
 from video import Video
@@ -21,48 +21,63 @@ class Curtain(StateMachine):
     )
 
     def __init__(self, video: Video, sensor: Sensor):
-        self.video = video
         self.sensor = sensor
+        self.video = video
         super(Curtain, self).__init__()
 
-        asyncio.create_task(self.sensor.listen())
+        self.sensor_thread = threading.Thread(target=self.sensor.listen)
+        self.sensor_thread.start()
+
+        self.video_thread = threading.Thread(target=self.video.play)
+
+        self.cycle_thread = threading.Thread(target=self.run_cycle)
+        self.cycle_thread.start()
 
         self.on_enter_closed()
 
 
-    async def in_range(self):
+    def run_cycle(self):
+        while True:
+            try:
+                self.cycle()
+            except Exception as e:
+                print(e)
+            threading.Event().wait(1)
+
+
+    def in_range(self):
         return self.sensor.in_range
-    
 
-    async def not_in_range(self):
+
+    def not_in_range(self):
         return (not self.sensor.in_range and self.sensor.idle_time > 5)
-    
 
-    async def video_end(self):
+
+    def video_end(self):
         return self.video.last_frame == self.video.frames - 1
 
 
-    async def video_beginning(self):
+    def video_beginning(self):
         return self.video.last_frame == 0
 
 
-    async def on_enter_opening(self):
-        await self.video.set_playing(True)
-        await self.video.set_play_direction(1)
-        await self.video.play()
-    
-
-    async def on_enter_closing(self):
-        await self.video.set_playing(True)
-        await self.video.set_play_direction(-1)
-        await self.video.play()
+    def on_enter_opening(self):
+        self.video.set_playing(True)
+        self.video.set_play_direction(1)
+        self.video_thread.start()
 
 
-    async def on_enter_opened(self):
-        await self.video.set_playing(False)
-        await self.video.play()
+    def on_enter_closing(self):
+        self.video.set_playing(True)
+        self.video.set_play_direction(-1)
+        self.video_thread.start()
 
 
-    async def on_enter_closed(self):
-        await self.video.set_playing(False)
-        await self.video.play()
+    def on_enter_opened(self):
+        self.video.set_playing(False)
+        self.video_thread.start()
+
+
+    def on_enter_closed(self):
+        self.video.set_playing(False)
+        self.video_thread.start()

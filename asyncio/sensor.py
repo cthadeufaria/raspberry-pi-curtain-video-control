@@ -1,5 +1,6 @@
 from gpiozero import DistanceSensor
-from time import time, sleep
+from time import time
+import asyncio
 
 
 
@@ -32,7 +33,7 @@ class Sensor:
         return round(self.sensor.distance * 100, places)
 
     
-    def listen(self):
+    async def listen(self):
         while True:
             self.distance = self.get_distance_cm_rounded(2)
             print("Distance: {} cm".format(self.distance))
@@ -55,4 +56,4 @@ class Sensor:
                     self.idle_time += current_time - self.last_change_time
                     self.last_change_time = current_time
             
-            sleep(1)
+            await asyncio.sleep(1)
