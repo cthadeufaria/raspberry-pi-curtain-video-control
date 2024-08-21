@@ -1,31 +1,20 @@
-import threading
-from time import sleep
+import asyncio
 
-from video import Video
-from sensor import Sensor
 from curtain import Curtain
 
-# class Sensor():
-#     def __init__(self, trigger, echo):
-#         self.in_range = False
-#         self.idle_time = 0
-    
-#     def listen(self):
-#         while True:
-#             print("Sensor listening")
-#             sleep(1)
 
 
-def main():
-    sensor = Sensor(trigger=18, echo=24)
-    video = Video('flaminghott.mp4')
-    curtain = Curtain(video, sensor)
+async def main():
+    curtain = Curtain()
 
     while True:
-        print(curtain.current_state)
-        threading.Event().wait(1)
+        try:
+            await curtain.send("cycle")
+            print(curtain.current_state)
 
+        except Exception as e:
+            print(e)
 
 
 if __name__ == "__main__": 
-    main()
+    asyncio.run(main())

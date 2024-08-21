@@ -19,17 +19,11 @@ class Curtain(StateMachine):
         | closing.to(opening, cond="in_range")
         | closing.to(closed, cond="video_beginning")
     )
-
+    
     def __init__(self, video: Video, sensor: Sensor):
         self.video = video
         self.sensor = sensor
         super(Curtain, self).__init__()
-
-        asyncio.create_task(self.sensor.listen())
-        # asyncio.create_task(self.video.play())
-        # self.video_task = None
-
-        self.on_enter_closed()
 
 
     async def in_range(self):
@@ -52,16 +46,12 @@ class Curtain(StateMachine):
         await self.video.set_playing(True)
         await self.video.set_play_direction(1)
         await self.video.play()
-        # if self.video_task is None or self.video_task.done():
-        #     self.video_task = asyncio.create_task(self.video.play())
 
 
     async def on_enter_closing(self):
         await self.video.set_playing(True)
         await self.video.set_play_direction(-1)
         await self.video.play()
-        # if self.video_task is None or self.video_task.done():
-        #     self.video_task = asyncio.create_task(self.video.play())
 
 
     async def on_enter_opened(self):

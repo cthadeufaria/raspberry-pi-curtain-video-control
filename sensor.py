@@ -1,6 +1,18 @@
 from gpiozero import DistanceSensor
 from time import time, sleep
+import asyncio
 
+
+
+# class Sensor():
+#     def __init__(self, trigger, echo):
+#         self.in_range = False
+#         self.idle_time = 0
+    
+#     async def listen(self):
+#         while True:
+#             print("Sensor listening")
+#             asyncio.sleep(1)
 
 
 class Sensor:

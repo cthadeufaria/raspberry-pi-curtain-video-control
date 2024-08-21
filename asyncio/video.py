@@ -40,8 +40,7 @@ class Video:
         """
         Plays the video.
         """
-
-        if self.playing:           
+        while self.playing:           
             cap = cv2.VideoCapture(self.video_path)
 
             if not cap.isOpened():
@@ -51,20 +50,23 @@ class Video:
             while self.last_frame >= 0 and self.last_frame < self.frames and self.playing == True:
                 cap.set(cv2.CAP_PROP_POS_FRAMES, self.last_frame)
                 ret, frame = cap.read()
+                cap.release()
                 
                 if not ret:
                     print("Reached the end of the video or failed to read the frame.")
                     self.finished = True
+                    cap.release()
                     break
 
                 cv2.imshow('Video', frame)
 
-                if cv2.waitKey(33) & 0xFF == ord('q'):
+                if (cv2.waitKey(25) & 0xFF == ord('q')):
+                    cap.release()
                     break
 
                 self.last_frame += self.play_direction
 
-                print(self.last_frame)
+                await asyncio.sleep(1/240)
 
             self.last_frame -= self.play_direction
             cap.release()
