@@ -26,6 +26,7 @@ class Curtain(StateMachine):
         self.sensor = Sensor(trigger=18, echo=24)
         self.video = Video('flaminghott.mp4')
         self.video_task = None
+        self.sensor_task = asyncio.create_task(self.sensor.listen())
 
 
     async def in_range(self):
