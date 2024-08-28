@@ -23,25 +23,24 @@ class Curtain(StateMachine):
 
     def __init__(self):
         super().__init__()
-        self.sensor = Sensor(trigger=18, echo=24)
+        self.sensor = Sensor()
         self.video = Video('flaminghott.mp4')
         self.video_task = None
-        self.sensor_task = asyncio.create_task(self.sensor.listen())
 
 
-    async def in_range(self):
+    def in_range(self):
         return self.sensor.in_range
 
 
-    async def not_in_range(self):
-        return (not self.sensor.in_range and self.sensor.idle_time > 5)
+    def not_in_range(self):
+        return not self.sensor.in_range
 
 
-    async def video_end(self):
+    def video_end(self):
         return self.video.last_frame == self.video.frames - 1
 
 
-    async def video_beginning(self):
+    def video_beginning(self):
         return self.video.last_frame == 0
 
 
@@ -60,11 +59,11 @@ class Curtain(StateMachine):
 
 
     async def on_enter_closed(self):
-        await self.manage_task()
+        await self.video.set_playing(False)
+        await self.set_video_task()
 
 
-    async def manage_task(self):
-        if self.video_task is not None:
-            self.video_task.cancel()
-        self.video_task = asyncio.create_task(self.video.play())
-        await asyncio.run(self.video_task)
+    async def set_video_task(self):
+        if self.video_task is None:
+            self.video_task = asyncio.create_task(self.video.play())
+            await asyncio.run(self.video_task)

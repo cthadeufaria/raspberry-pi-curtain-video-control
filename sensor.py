@@ -1,58 +1,26 @@
-from gpiozero import DistanceSensor
-from time import time
-import asyncio
+from gpiozero import MotionSensor
 
 
 
-# class Sensor():
-#     def __init__(self, trigger, echo):
+# class Sensor:
+#     def __init__(self) -> None:
 #         self.in_range = False
-#         self.idle_time = 0
-    
-#     async def listen(self):
-#         while True:
-#             print("Sensor listening")
-#             await asyncio.sleep(1)
 
 
 class Sensor:
-    def __init__(self, trigger, echo):
-        self.sensor = DistanceSensor(trigger=trigger, echo=echo)
-        self.distance = 100
+    def __init__(self, pin=18, debug=True) -> None:
         self.in_range = False
-        self.out_of_range = True
-        self.idle_time = 0.
-        self.last_change_time = 0.
-
-        print("Sensor initialized.")
-        print("Distance: {} cm".format(self.get_distance_cm_rounded(2)))
-
-
-    def get_distance_cm_rounded(self, places):
-        return round(self.sensor.distance * 100, places)
+        if not debug:   
+            self.sensor = MotionSensor(pin=pin)
+            self.sensor.when_motion = self.motion_detected
+            self.sensor.when_no_motion = self.no_motion_detected
 
     
-    async def listen(self):
-        while True:
-            self.distance = self.get_distance_cm_rounded(2)
-            print("Distance: {} cm".format(self.distance))
-            current_time = time()
+    def motion_detected(self):
+        self.in_range = True
+        print("Motion detected.")
 
-            if self.distance < 10:
-                if not self.in_range:
-                    self.idle_time = 0
-                    self.in_range = True
-                    self.last_change_time = current_time
-                else:
-                    self.idle_time += current_time - self.last_change_time
-                    self.last_change_time = current_time
-            else:
-                if self.in_range:
-                    self.idle_time = 0
-                    self.in_range = False
-                    self.last_change_time = current_time
-                else:
-                    self.idle_time += current_time - self.last_change_time
-                    self.last_change_time = current_time
-            
-            await asyncio.sleep(1)
+    
+    def no_motion_detected(self):
+        self.in_range = False
+        print("No motion detected.")
