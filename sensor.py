@@ -2,11 +2,6 @@ from gpiozero import MotionSensor
 
 
 
-# class Sensor:
-#     def __init__(self) -> None:
-#         self.in_range = False
-
-
 class Sensor:
     def __init__(self, pin=18, debug=False) -> None:
         self.in_range = False
