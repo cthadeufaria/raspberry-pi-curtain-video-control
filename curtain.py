@@ -24,7 +24,7 @@ class Curtain(StateMachine):
     def __init__(self):
         super().__init__()
         self.sensor = Sensor()
-        self.video = Video('flaminghott.mp4')
+        self.video = Video('curtain.mp4')
         self.video_task = None
 
 
