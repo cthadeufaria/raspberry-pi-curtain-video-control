@@ -8,7 +8,7 @@ from gpiozero import MotionSensor
 
 
 class Sensor:
-    def __init__(self, pin=18, debug=True) -> None:
+    def __init__(self, pin=18, debug=False) -> None:
         self.in_range = False
         if not debug:   
             self.sensor = MotionSensor(pin=pin)
