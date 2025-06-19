@@ -1,4 +1,4 @@
-# Automatic Curtain Controller
+# Automatic Curtain Video Interaction Controller
 
 ## Overview
 
